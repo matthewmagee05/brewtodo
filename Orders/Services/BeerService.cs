@@ -22,18 +22,18 @@ namespace Orders.Services
             return _context.Beers.Count(e => e.BeerID == id) > 0;
         }
 
-        public bool Delete(int id)
+        public Beer Delete(int id)
         {
-            Beer Beer = _context.Beers.Find(id);
-            if (Beer == null)
+            Beer beer = _context.Beers.Find(id);
+            if (beer == null)
             {
-                return false;
+                return null;
             }
 
-            _context.Beers.Remove(Beer);
+            _context.Beers.Remove(beer);
             _context.SaveChanges();
 
-            return true;
+            return beer;
 
         }
 
@@ -61,40 +61,30 @@ namespace Orders.Services
             return Beer;
         }
 
-        public void Post(Beer Beer)
+        public Beer Post(Beer Beer)
         {
             _context.Beers.Add(Beer);
             _context.SaveChanges();
+            return Beer;
         }
 
-        public bool Put(int id, Beer Beer)
+        public Beer Put(Beer beer)
         {
-            if (_context.Beers.Where(a => a.BeerID == id).FirstOrDefault() == null)
+            var foundBeer = _context.Beers.Find(beer.BeerID);
+            if (foundBeer == null)
             {
-                return false;
+                return null;
             }
+            foundBeer.ABV = beer.ABV;
+            foundBeer.BeerName = beer.BeerName;
+            foundBeer.BeerTypeID = beer.BeerTypeID;
+            foundBeer.BreweryID = beer.BreweryID;
+            foundBeer.Description = beer.Description;
+            _context.SaveChanges();
 
-            Beer.BeerID = id;
-            Beer oldBrew = _context.Beers.Where(a => a.BeerID == id).FirstOrDefault();
-            _context.Entry(oldBrew).CurrentValues.SetValues(Beer);
-
-            try
-            {
-                _context.SaveChanges();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!BeerExists(id))
-                {
-                    return false;
-                }
-                else
-                {
-                    throw;
-                }
-            }
-            return true;
+           return foundBeer;
         }
+
 
         public void Dispose()
         {

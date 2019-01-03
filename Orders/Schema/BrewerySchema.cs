@@ -1,16 +1,17 @@
-using GraphQL.Types;
 using GraphQL;
+using Orders.Schema.Mutations;
 using System;
 
 namespace Orders.Schema
 {
-    public class OrdersSchema: GraphQL.Types.Schema
+    public class BrewerySchema: GraphQL.Types.Schema
     {
-        public OrdersSchema(OrdersQuery query, IDependencyResolver resolver, OrdersMutation mutation)
+        public BrewerySchema(BreweryQuery query, IDependencyResolver resolver, BreweryMutation mutation)
         {
             Query = query;
             Mutation = mutation;
             DependencyResolver = resolver;
         }
+
     }
 }

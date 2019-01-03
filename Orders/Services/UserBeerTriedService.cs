@@ -4,6 +4,7 @@ using Orders.Data;
 using Orders.Models;
 using Orders.Services.Interfaces;
 using System;
+using System.Collections.Generic;
 
 namespace Orders.Services
 {
@@ -21,18 +22,18 @@ namespace Orders.Services
             return _context.UserBeersTried.Count(e => e.UserBeerTriedID == id) > 0;
         }
 
-        public bool Delete(int id)
+        public UserBeerTried Delete(int id)
         {
-            UserBeerTried UserBeerTried = _context.UserBeersTried.Find(id);
-            if (UserBeerTried == null)
+            UserBeerTried userBeerTried = _context.UserBeersTried.Find(id);
+            if (userBeerTried == null)
             {
-                return false;
+                return null;
             }
 
-            _context.UserBeersTried.Remove(UserBeerTried);
+            _context.UserBeersTried.Remove(userBeerTried);
             _context.SaveChanges();
 
-            return true;
+            return userBeerTried;
 
         }
 
@@ -52,49 +53,45 @@ namespace Orders.Services
             return UserBeerTried;
         }
 
-        public void Post(UserBeerTried UserBeerTried)
+        public UserBeerTried Post(UserBeerTried userBeerTried)
         {
-            _context.UserBeersTried.Add(UserBeerTried);
+            _context.UserBeersTried.Add(userBeerTried);
             _context.SaveChanges();
+            return userBeerTried;
         }
 
-        public bool Put(int id, UserBeerTried UserBeerTried)
+        public UserBeerTried Put( UserBeerTried userBeerTried)
         {
-            if (_context.UserBeersTried.Where(a => a.UserBeerTriedID == id).FirstOrDefault() == null)
+            var foundUBT = _context.UserBeersTried.Find(userBeerTried.UserBeerTriedID);
+            if (foundUBT == null)
             {
-                return false;
+                return null;
             }
+            foundUBT.BeerID = userBeerTried.BeerID;
+            foundUBT.UserID = userBeerTried.UserID;
 
-            UserBeerTried.UserBeerTriedID = id;
-            UserBeerTried oldBrew = _context.UserBeersTried.Where(a => a.UserBeerTriedID == id).FirstOrDefault();
-            _context.Entry(oldBrew).CurrentValues.SetValues(UserBeerTried);
+            _context.SaveChanges();
 
-            try
-            {
-                _context.SaveChanges();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!UserBeerTriedExists(id))
-                {
-                    return false;
-                }
-                else
-                {
-                    throw;
-                }
-            }
-            return true;
+            return foundUBT;
         }
 
         public void Dispose()
         {
             ((IDisposable)_context).Dispose();
         }
+
+        public IEnumerable<UserBeerTried> GetAllBeersTriedById(int id)
+        {
+            var beersTried = _context.UserBeersTried.Where(r => r.UserBeerTriedID == id).AsEnumerable();
+            if(beersTried == null){
+                return null;
+            }
+            return beersTried;
+        }
     }
 
     public interface IUserBeerTriedService: IRepository<UserBeerTried>
     {
-
+        IEnumerable<UserBeerTried> GetAllBeersTriedById(int id);
     }
 }

@@ -21,18 +21,18 @@ namespace Orders.Services
             return _context.Users.Count(e => e.UserID == id) > 0;
         }
 
-        public bool Delete(int id)
+        public User Delete(int id)
         {
             User brewery = _context.Users.Find(id);
             if (brewery == null)
             {
-                return false;
+                return null;
             }
 
             _context.Users.Remove(brewery);
             _context.SaveChanges();
 
-            return true;
+            return brewery;
 
         }
 
@@ -52,39 +52,29 @@ namespace Orders.Services
             return brewery;
         }
 
-        public void Post(User brewery)
+        public User Post(User brewery)
         {
             _context.Users.Add(brewery);
             _context.SaveChanges();
+            return brewery;
         }
 
-        public bool Put(int id, User brewery)
+        public User Put(User user)
         {
-            if (_context.Users.Where(a => a.UserID == id).FirstOrDefault() == null)
+            var foundUser = _context.Users.Find(user.UserID);
+            if (foundUser == null)
             {
-                return false;
+                return null;
             }
+            foundUser.FirstName = user.FirstName;
+            foundUser.IdentityID = user.IdentityID;
+            foundUser.LastName = user.LastName;
+            foundUser.ProfileImage = user.ProfileImage;
+            foundUser.Username = user.Username;
 
-            brewery.UserID = id;
-            User oldBrew = _context.Users.Where(a => a.UserID == id).FirstOrDefault();
-            _context.Entry(oldBrew).CurrentValues.SetValues(brewery);
+            _context.SaveChanges();
 
-            try
-            {
-                _context.SaveChanges();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!UserExists(id))
-                {
-                    return false;
-                }
-                else
-                {
-                    throw;
-                }
-            }
-            return true;
+            return foundUser;
         }
 
         public void Dispose()

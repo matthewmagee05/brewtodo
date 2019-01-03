@@ -6,8 +6,8 @@ namespace Orders.Services.Interfaces
     {
         IQueryable<T> Get();
         T Get(int id);
-        bool Put(int id,T model);
-        bool Delete(int id);
-        void Post(T model);
+        T Put(T model);
+        T Delete(int id);
+        T Post(T model);
     }
 }

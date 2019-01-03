@@ -21,18 +21,18 @@ namespace Orders.Services
             return _context.BeerTypes.Count(e => e.BeerTypeID == id) > 0;
         }
 
-        public bool Delete(int id)
+        public BeerType Delete(int id)
         {
-            BeerType BeerType = _context.BeerTypes.Find(id);
-            if (BeerType == null)
+            BeerType beerType = _context.BeerTypes.Find(id);
+            if (beerType == null)
             {
-                return false;
+                return null;
             }
 
-            _context.BeerTypes.Remove(BeerType);
+            _context.BeerTypes.Remove(beerType);
             _context.SaveChanges();
 
-            return true;
+            return beerType;
 
         }
 
@@ -52,39 +52,26 @@ namespace Orders.Services
             return BeerType;
         }
 
-        public void Post(BeerType BeerType)
+        public BeerType Post(BeerType BeerType)
         {
             _context.BeerTypes.Add(BeerType);
             _context.SaveChanges();
+            return BeerType;
         }
 
-        public bool Put(int id, BeerType BeerType)
+
+        public BeerType Put(BeerType beerType)
         {
-            if (_context.BeerTypes.Where(a => a.BeerTypeID == id).FirstOrDefault() == null)
+            var foundBeerType = _context.BeerTypes.Find(beerType.BeerTypeID);
+            if (foundBeerType == null)
             {
-                return false;
+                return null;
             }
+            foundBeerType.BeerTypeID = beerType.BeerTypeID;
+            foundBeerType.BeerTypeName = beerType.BeerTypeName;
+            _context.SaveChanges();
 
-            BeerType.BeerTypeID = id;
-            BeerType oldBrew = _context.BeerTypes.Where(a => a.BeerTypeID == id).FirstOrDefault();
-            _context.Entry(oldBrew).CurrentValues.SetValues(BeerType);
-
-            try
-            {
-                _context.SaveChanges();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!BeerTypeExists(id))
-                {
-                    return false;
-                }
-                else
-                {
-                    throw;
-                }
-            }
-            return true;
+            return foundBeerType;
         }
 
         public void Dispose()

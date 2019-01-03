@@ -22,18 +22,18 @@ namespace Orders.Services
             return _context.Reviews.Count(e => e.ReviewID == id) > 0;
         }
 
-        public bool Delete(int id)
+        public Review Delete(int id)
         {
             Review review = _context.Reviews.Find(id);
             if (review == null)
             {
-                return false;
+                return null;
             }
 
             _context.Reviews.Remove(review);
             _context.SaveChanges();
 
-            return true;
+            return review;
 
         }
 
@@ -60,39 +60,29 @@ namespace Orders.Services
             return review;
         }
 
-        public void Post(Review review)
+        public Review Post(Review review)
         {
             _context.Reviews.Add(review);
             _context.SaveChanges();
+            return review;
         }
 
-        public bool Put(int id, Review review)
+        public Review Put(Review review)
         {
-            if (_context.Reviews.Where(a => a.ReviewID == id).FirstOrDefault() == null)
+            var foundReview = _context.Reviews.Find(review.ReviewID);
+            if (foundReview == null)
             {
-                return false;
+                return null;
             }
+            foundReview.BreweryID = review.BreweryID;
+            foundReview.Rating = review.Rating;
+            foundReview.ReviewDescription = review.ReviewDescription;
+            foundReview.UserID = review.ReviewID;
 
-            review.ReviewID = id;
-            Review oldReview = _context.Reviews.Where(a => a.ReviewID == id).FirstOrDefault();
-            _context.Entry(oldReview).CurrentValues.SetValues(review);
+            _context.SaveChanges();
 
-            try
-            {
-                _context.SaveChanges();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!ReviewExists(id))
-                {
-                    return false;
-                }
-                else
-                {
-                    throw;
-                }
-            }
-            return true;
+            return foundReview;
+
         }
 
         public void Dispose()

@@ -4,6 +4,7 @@ using Orders.Data;
 using Orders.Models;
 using Orders.Services.Interfaces;
 using System;
+using System.Collections.Generic;
 
 namespace Orders.Services
 {
@@ -21,18 +22,18 @@ namespace Orders.Services
             return _context.UserPurchasedItems.Count(e => e.UserPurchasedItemID == id) > 0;
         }
 
-        public bool Delete(int id)
+        public UserPurchasedItem Delete(int id)
         {
             UserPurchasedItem brewery = _context.UserPurchasedItems.Find(id);
             if (brewery == null)
             {
-                return false;
+                return null;
             }
 
             _context.UserPurchasedItems.Remove(brewery);
             _context.SaveChanges();
 
-            return true;
+            return brewery;
 
         }
 
@@ -52,39 +53,30 @@ namespace Orders.Services
             return brewery;
         }
 
-        public void Post(UserPurchasedItem brewery)
+        public UserPurchasedItem Post(UserPurchasedItem brewery)
         {
             _context.UserPurchasedItems.Add(brewery);
             _context.SaveChanges();
+            return brewery;
         }
 
-        public bool Put(int id, UserPurchasedItem brewery)
+        public UserPurchasedItem Put(UserPurchasedItem brewery)
         {
-            if (_context.UserPurchasedItems.Where(a => a.UserPurchasedItemID == id).FirstOrDefault() == null)
+            var foundUPI = _context.UserPurchasedItems.Find(brewery.UserPurchasedItemID);
+            if (foundUPI == null)
             {
-                return false;
+                return null;
             }
+            foundUPI.BreweryID = brewery.BreweryID;
+            foundUPI.PurchasedGrowler = brewery.PurchasedGrowler;
+            foundUPI.PurchasedMug = brewery.PurchasedMug;
+            foundUPI.PurchasedTShirt = brewery.PurchasedTShirt;
+            foundUPI.TriedFood = brewery.TriedFood;
+            foundUPI.UserID = brewery.UserID;
 
-            brewery.UserPurchasedItemID = id;
-            UserPurchasedItem oldBrew = _context.UserPurchasedItems.Where(a => a.UserPurchasedItemID == id).FirstOrDefault();
-            _context.Entry(oldBrew).CurrentValues.SetValues(brewery);
+            _context.SaveChanges();
 
-            try
-            {
-                _context.SaveChanges();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!UserPurchasedItemExists(id))
-                {
-                    return false;
-                }
-                else
-                {
-                    throw;
-                }
-            }
-            return true;
+            return foundUPI;
         }
 
         public void Dispose()
@@ -92,11 +84,18 @@ namespace Orders.Services
             ((IDisposable)_context).Dispose();
         }
 
-
+        public IEnumerable<UserPurchasedItem> GetAllPurchasedItemsById(int id)
+        {
+            var itemsPurchased = _context.UserPurchasedItems.Where(r => r.UserPurchasedItemID == id).AsEnumerable();
+            if(itemsPurchased == null){
+                return null;
+            }
+            return itemsPurchased;
+        }
     }
 
     public interface IUserPurchasedItemService: IRepository<UserPurchasedItem>
     {
-
+        IEnumerable<UserPurchasedItem> GetAllPurchasedItemsById(int id);
     }
 }

@@ -19,18 +19,18 @@ namespace Orders.Services
         {
             return _context.Breweries.Count(e => e.BreweryID == id) > 0;
         }
-        public bool Delete(int id)
+        public Brewery Delete(int id)
         {
             Brewery brewery = _context.Breweries.Find(id);
             if (brewery == null)
             {
-                return false;
+                return null;
             }
 
             _context.Breweries.Remove(brewery);
             _context.SaveChanges();
 
-            return true;
+            return brewery;
         }
 
         public IQueryable<Brewery> Get()
@@ -48,39 +48,36 @@ namespace Orders.Services
             return brewery;
         }
 
-        public void Post(Brewery brewery)
+        public Brewery Post(Brewery brewery)
         {
             _context.Breweries.Add(brewery);
             _context.SaveChanges();
+            return brewery;
         }
 
-        public bool Put(int id, Brewery brewery)
+        public Brewery Put(Brewery brewery)
         {
-            if (_context.Breweries.Where(a => a.BreweryID == id).FirstOrDefault() == null)
+            var foundBrewery = _context.Breweries.Find(brewery.BreweryID);
+            if (foundBrewery == null)
             {
-                return false;
+                return null;
             }
+            foundBrewery.BusinessHours = brewery.BusinessHours;
+            foundBrewery.Description = brewery.Description;
+            foundBrewery.HasFood = brewery.HasFood;
+            foundBrewery.HasGrowler = brewery.HasGrowler;
+            foundBrewery.HasMug = brewery.HasMug;
+            foundBrewery.HasTShirt = brewery.HasTShirt;
+            foundBrewery.ImageURL = brewery.ImageURL;
+            foundBrewery.Name = brewery.Name;
+            foundBrewery.PhoneNumber = brewery.PhoneNumber;
+            foundBrewery.StateID = brewery.StateID;
+            foundBrewery.Address = brewery.Address;
+            foundBrewery.ZipCode = brewery.ZipCode;
 
-            brewery.BreweryID = id;
-            Brewery oldBrew = _context.Breweries.Where(a => a.BreweryID == id).FirstOrDefault();
-            _context.Entry(oldBrew).CurrentValues.SetValues(brewery);
+            _context.SaveChanges();
 
-            try
-            {
-                _context.SaveChanges();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!BreweryExists(id))
-                {
-                    return false;
-                }
-                else
-                {
-                    throw;
-                }
-            }
-            return true;
+            return foundBrewery;
         }
 
         public void Dispose()

@@ -9,6 +9,8 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Orders.Schema;
+using Orders.Schema.InputTypes;
+using Orders.Schema.Mutations;
 using Orders.Services;
 using Orders.Services.Interfaces;
 
@@ -20,7 +22,6 @@ namespace Server
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddSingleton<IOrderService, OrderService>();
             services.AddSingleton<ICustomerService, CustomerService>();
             services.AddSingleton<IBreweryService, BreweryService>();
             services.AddSingleton<IBeerTypeService, BeerTypeService>();
@@ -36,13 +37,16 @@ namespace Server
             services.AddSingleton<UserBeerTriedType>();
             services.AddSingleton<UserPurchasedItemType>();
             services.AddSingleton<ReviewType>();
-            services.AddSingleton<OrderType>();
-            services.AddSingleton<CustomerType>();
-            services.AddSingleton<OrderStatusesEnum>();
-            services.AddSingleton<OrdersQuery>();
-            services.AddSingleton<OrdersSchema>();
-            services.AddSingleton<OrderCreateInputType>();
-            services.AddSingleton<OrdersMutation>();
+            services.AddSingleton<BreweryQuery>();
+            services.AddSingleton<BrewerySchema>();
+            services.AddSingleton<BreweryCreateInputType>();
+            services.AddSingleton<BeerInputType>();
+            services.AddSingleton<BeerTypeInputType>();
+            services.AddSingleton<ReviewInputType>();
+            services.AddSingleton<UserBeerTriedInputType>();
+            services.AddSingleton<UserInputType>();
+            services.AddSingleton<UserPurchasedItemInputType>();
+            services.AddSingleton<BreweryMutation>();
             services.AddSingleton<IDependencyResolver>(
                 c => new FuncDependencyResolver(type => c.GetRequiredService(type))
             );
@@ -65,8 +69,8 @@ namespace Server
             app.UseDefaultFiles();
             app.UseStaticFiles();
             app.UseWebSockets();
-            app.UseGraphQLWebSockets<OrdersSchema>();
-            app.UseGraphQL<OrdersSchema>("/graphql");
+            app.UseGraphQLWebSockets<BrewerySchema>();
+            app.UseGraphQL<BrewerySchema>("/graphql");
         }
     }
 }
